@@ -130,60 +130,329 @@ function setup(){
  $$('[data-open]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.open==='salaryModal'){ $('#salaryInput').value=data.salary;$('#paydayInput').value=data.payday;openModal('salaryModal');}}));
  refresh();
 }
+async function initCloudAuth() {
+  const screen = $('#authScreen');
+  const submit = $('#authSubmit');
+  const message = $('#authMessage');
+  const accountStatus = $('#accountStatus');
 
-async function initCloudAuth(){
- const screen=$('#authScreen');
- const showAuth=(msg='')=>{screen.classList.add('show');$('#authMessage').textContent=msg||'بياناتك المالية خاصة بحسابك ولا يراها مستخدم آخر.';$('#authMessage').className='auth-message';};
- const hideAuth=()=>screen.classList.remove('show');
- if(!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes('YOUR_') || SUPABASE_ANON_KEY.includes('YOUR_')){
-   showAuth('أضف رابط Supabase ومفتاح anon داخل ملف config.js ثم أعد تحميل الصفحة.');
-   $('#authSubmit').disabled=true;
-   $('#authSubmit').textContent='أكمل إعداد Supabase أولاً';
-   $('#accountStatus').textContent='قاعدة البيانات غير مهيأة — راجع config.js';
-   return;
- }
- supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
- $('#authSwitch').onclick=()=>{
-   authMode=authMode==='login'?'signup':'login';
-   $('#authHeading').textContent=authMode==='login'?'مرحباً بعودتك':'إنشاء حساب جديد';
-   $('#authSubtitle').textContent=authMode==='login'?'سجّل الدخول للوصول إلى بياناتك من أي جهاز.':'أنشئ حساباً لحفظ بياناتك ومزامنتها بين أجهزتك.';
-   $('#authSubmit').textContent=authMode==='login'?'تسجيل الدخول':'إنشاء الحساب';
-   $('#authSwitch').textContent=authMode==='login'?'ليس لديك حساب؟ أنشئ حساباً جديداً':'لديك حساب بالفعل؟ سجّل الدخول';
-   $('#authPassword').autocomplete=authMode==='login'?'current-password':'new-password';
- };
- $('#authForm').onsubmit=async e=>{
-   e.preventDefault();const email=$('#authEmail').value.trim(),password=$('#authPassword').value;
-   $('#authSubmit').disabled=true;$('#authSubmit').textContent='جارٍ الاتصال...';
-   let result=authMode==='login'?await supabaseClient.auth.signInWithPassword({email,password}):await supabaseClient.auth.signUp({email,password});
-   $('#authSubmit').disabled=false;$('#authSubmit').textContent=authMode==='login'?'تسجيل الدخول':'إنشاء الحساب';
-   if(result.error){$('#authMessage').textContent=result.error.message;$('#authMessage').className='auth-message error';}
-   else if(authMode==='signup'&&!result.data.session){$('#authMessage').textContent='تم إنشاء الحساب. تحقق من بريدك الإلكتروني لتأكيده، ثم سجّل الدخول.';$('#authMessage').className='auth-message success';}
-   else $('#authMessage').textContent='تم بنجاح، جارٍ تحميل بياناتك...';
- };
- supabaseClient.auth.onAuthStateChange(async(_event,session)=>{
-   if(session?.user){
-     currentUser=session.user;cloudReady=false;loadingCloud=true;
-     $('#accountStatus').textContent='الحساب السحابي: '+currentUser.email;
-     const {data:row,error}=await supabaseClient.from('user_finance_data').select('data').eq('user_id',currentUser.id).maybeSingle();
-     if(error){console.error(error);$('#authMessage').textContent='تعذر قراءة قاعدة البيانات: '+error.message;$('#authMessage').className='auth-message error';showAuth('تأكد من تنفيذ SQL وسياسات الحماية في Supabase.');loadingCloud=false;return;}
-     if(row?.data){data={...defaultData,...row.data};}
-     else {
-       // أول دخول: ارفع بيانات هذا المتصفح إلى حساب المستخدم إن وجدت.
-       data={...defaultData,...JSON.parse(localStorage.getItem('myMoneyData')||'{}')};
-       const {error:upErr}=await supabaseClient.from('user_finance_data').upsert({user_id:currentUser.id,data,updated_at:new Date().toISOString()},{onConflict:'user_id'});
-       if(upErr){console.error(upErr);showAuth('تعذر إنشاء سجل بياناتك. راجع SQL وسياسات RLS.');loadingCloud=false;return;}
-     }
-     localStorage.setItem('myMoneyData',JSON.stringify(data));loadingCloud=false;cloudReady=true;
-     hideAuth();refresh();toast('تمت مزامنة بياناتك السحابية');
-   }else{
-     currentUser=null;cloudReady=false;$('#accountStatus').textContent='غير مسجل الدخول';showAuth();
-   }
- });
- const {data:{session}}=await supabaseClient.auth.getSession();
- if(session?.user){
-   // onAuthStateChange handles initial session; avoid duplicate loading
- }else showAuth();
- $('#signOutBtn').onclick=async()=>{if(confirm('هل تريد تسجيل الخروج من حسابك؟')){await supabaseClient.auth.signOut();closeModals();}};
+  const showAuth = (msg = '') => {
+    screen.classList.add('show');
+    message.textContent = msg || 'بياناتك المالية خاصة بحسابك.';
+    message.className = 'auth-message';
+  };
+
+  const hideAuth = () => screen.classList.remove('show');
+
+  const showError = (msg) => {
+    message.textContent = msg;
+    message.className = 'auth-message error';
+  };
+
+  const setLoading = (loading, text = '') => {
+    submit.disabled = loading;
+    submit.textContent = text || (
+      authMode === 'login' ? 'تسجيل الدخول' : 'إنشاء الحساب'
+    );
+  };
+
+  // التحقق من إعدادات Supabase
+  if (
+    !window.supabase ||
+    !SUPABASE_URL ||
+    !SUPABASE_ANON_KEY
+  ) {
+    showAuth('لم يتم العثور على إعدادات Supabase. راجع ملف config.js.');
+    submit.disabled = true;
+    submit.textContent = 'أكمل إعداد Supabase أولاً';
+    accountStatus.textContent = 'قاعدة البيانات غير مهيأة';
+    return;
+  }
+
+  // التحقق من رابط المشروع
+  let projectURL;
+
+  try {
+    projectURL = new URL(SUPABASE_URL.trim());
+
+    if (
+      projectURL.protocol !== 'https:' ||
+      !projectURL.hostname.endsWith('.supabase.co') ||
+      projectURL.pathname !== '/' ||
+      projectURL.search ||
+      projectURL.hash
+    ) {
+      throw new Error('Invalid Supabase URL');
+    }
+
+    projectURL = projectURL.origin;
+
+  } catch (error) {
+    console.error('Supabase URL error:', error);
+    showAuth('رابط Supabase غير صحيح. انسخ Project URL من إعدادات مشروعك.');
+    submit.disabled = true;
+    accountStatus.textContent = 'رابط Supabase غير صالح';
+    return;
+  }
+
+  try {
+    supabaseClient = window.supabase.createClient(
+      projectURL,
+      SUPABASE_ANON_KEY.trim()
+    );
+  } catch (error) {
+    console.error(error);
+    showAuth('تعذر تشغيل اتصال Supabase. راجع إعدادات المشروع.');
+    return;
+  }
+
+  // التبديل بين تسجيل الدخول وإنشاء الحساب
+  $('#authSwitch').onclick = () => {
+    authMode = authMode === 'login' ? 'signup' : 'login';
+
+    $('#authHeading').textContent =
+      authMode === 'login' ? 'مرحباً بعودتك' : 'إنشاء حساب جديد';
+
+    $('#authSubtitle').textContent =
+      authMode === 'login'
+        ? 'سجّل الدخول للوصول إلى بياناتك من أي جهاز.'
+        : 'أنشئ حساباً لحفظ بياناتك ومزامنتها بين أجهزتك.';
+
+    submit.textContent =
+      authMode === 'login' ? 'تسجيل الدخول' : 'إنشاء الحساب';
+
+    $('#authSwitch').textContent =
+      authMode === 'login'
+        ? 'ليس لديك حساب؟ أنشئ حساباً جديداً'
+        : 'لديك حساب بالفعل؟ سجّل الدخول';
+
+    $('#authPassword').autocomplete =
+      authMode === 'login' ? 'current-password' : 'new-password';
+
+    message.textContent = 'بياناتك المالية خاصة بحسابك.';
+    message.className = 'auth-message';
+  };
+
+  // إنشاء حساب أو تسجيل الدخول
+  $('#authForm').onsubmit = async (e) => {
+    e.preventDefault();
+
+    const email = $('#authEmail').value.trim();
+    const password = $('#authPassword').value;
+
+    if (!email || !password) {
+      showError('أدخل البريد الإلكتروني وكلمة المرور.');
+      return;
+    }
+
+    if (password.length < 6) {
+      showError('كلمة المرور يجب أن تكون 6 أحرف على الأقل.');
+      return;
+    }
+
+    setLoading(true, 'جارٍ الاتصال...');
+    message.textContent = 'يرجى الانتظار...';
+    message.className = 'auth-message';
+
+    try {
+      let result;
+
+      if (authMode === 'login') {
+        result = await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+      } else {
+        result = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin +
+              window.location.pathname
+          }
+        });
+      }
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      if (authMode === 'signup' && !result.data.session) {
+        message.textContent =
+          'تم إنشاء الحساب بنجاح. تحقق من بريدك الإلكتروني لتأكيد الحساب، ثم سجّل الدخول.';
+        message.className = 'auth-message success';
+      } else {
+        message.textContent = 'تم بنجاح، جارٍ تحميل بياناتك...';
+        message.className = 'auth-message success';
+      }
+
+    } catch (error) {
+      console.error('Authentication error:', error);
+
+      let errorMessage = error.message || 'حدث خطأ غير معروف.';
+
+      if (errorMessage.includes('Invalid login credentials')) {
+        errorMessage = 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+      } else if (errorMessage.includes('User already registered')) {
+        errorMessage = 'هذا البريد مسجل بالفعل. جرّب تسجيل الدخول.';
+      } else if (errorMessage.includes('Email not confirmed')) {
+        errorMessage = 'يجب تأكيد بريدك الإلكتروني أولاً.';
+      } else if (
+        errorMessage.includes('Invalid path specified in request URL')
+      ) {
+        errorMessage =
+          'رابط Supabase غير صحيح أو يحتوي على مسار زائد. راجع config.js.';
+      } else if (
+        errorMessage.toLowerCase().includes('failed to fetch')
+      ) {
+        errorMessage =
+          'تعذر الاتصال بالخادم. تحقق من الإنترنت وإعدادات Supabase.';
+      }
+
+      showError(errorMessage);
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // تحميل بيانات المستخدم من السحابة
+  async function loadCloudData(user) {
+    if (!user) return;
+
+    currentUser = user;
+    cloudReady = false;
+    loadingCloud = true;
+
+    accountStatus.textContent = 'الحساب السحابي: ' + user.email;
+
+    try {
+      const { data: row, error } = await supabaseClient
+        .from('user_finance_data')
+        .select('data')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (row && row.data) {
+        data = {
+          ...defaultData,
+          ...row.data
+        };
+
+      } else {
+        // أول تسجيل دخول: استعادة البيانات المحلية
+        let localData = {};
+
+        try {
+          localData = JSON.parse(
+            localStorage.getItem('myMoneyData') || '{}'
+          );
+        } catch {
+          localData = {};
+        }
+
+        data = {
+          ...defaultData,
+          ...localData
+        };
+
+        const { error: saveError } = await supabaseClient
+          .from('user_finance_data')
+          .upsert({
+            user_id: user.id,
+            data: data,
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id'
+          });
+
+        if (saveError) throw saveError;
+      }
+
+      localStorage.setItem('myMoneyData', JSON.stringify(data));
+
+      cloudReady = true;
+      hideAuth();
+      refresh();
+
+      toast('تمت مزامنة بياناتك السحابية بنجاح');
+
+    } catch (error) {
+      console.error('Cloud data error:', error);
+
+      cloudReady = false;
+
+      showAuth(
+        'تعذر تحميل بياناتك. تأكد من وجود جدول user_finance_data وسياسات RLS الصحيحة.'
+      );
+
+      showError('خطأ في قاعدة البيانات: ' + error.message);
+
+    } finally {
+      loadingCloud = false;
+    }
+  }
+
+  // مراقبة حالة تسجيل الدخول
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (session?.user) {
+      if (
+        event === 'SIGNED_IN' ||
+        event === 'INITIAL_SESSION' ||
+        event === 'TOKEN_REFRESHED' ||
+        event === 'USER_UPDATED'
+      ) {
+        loadCloudData(session.user);
+      }
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      cloudReady = false;
+      loadingCloud = false;
+
+      accountStatus.textContent = 'غير مسجل الدخول';
+
+      showAuth();
+    }
+  });
+
+  // التحقق من الجلسة الحالية
+  try {
+    const { data: sessionData, error } =
+      await supabaseClient.auth.getSession();
+
+    if (error) throw error;
+
+    if (sessionData.session?.user) {
+      await loadCloudData(sessionData.session.user);
+    } else {
+      showAuth();
+      accountStatus.textContent = 'غير مسجل الدخول';
+    }
+
+  } catch (error) {
+    console.error('Session error:', error);
+    showAuth('تعذر التحقق من تسجيل الدخول. حاول تحديث الصفحة.');
+  }
+
+  // تسجيل الخروج
+  $('#signOutBtn').onclick = async () => {
+    if (!confirm('هل تريد تسجيل الخروج من حسابك؟')) return;
+
+    try {
+      const { error } = await supabaseClient.auth.signOut();
+
+      if (error) throw error;
+
+      closeModals();
+      toast('تم تسجيل الخروج بنجاح');
+
+    } catch (error) {
+      console.error(error);
+      toast('تعذر تسجيل الخروج: ' + error.message);
+    }
+  };
 }
 
 setup();
