@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1020">
+  <title>MY MONEY | مديرك المالي الشخصي</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+
+  <section class="auth-screen" id="authScreen">
+    <div class="auth-card glass">
+      <div class="brand auth-brand"><div class="brand-mark">M</div><div><b>MY MONEY</b><small>أموالك تحت سيطرتك</small></div></div>
+      <span class="eyebrow">مساحتك المالية الآمنة</span>
+      <h1 id="authHeading">مرحباً بعودتك</h1>
+      <p class="auth-subtitle" id="authSubtitle">سجّل الدخول للوصول إلى بياناتك من أي جهاز.</p>
+      <form id="authForm">
+        <div class="field"><label for="authEmail">البريد الإلكتروني</label><input id="authEmail" type="email" autocomplete="email" placeholder="name@example.com" required></div>
+        <div class="field"><label for="authPassword">كلمة المرور</label><input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="6 أحرف على الأقل" required></div>
+        <button class="primary-btn full-btn" id="authSubmit" type="submit">تسجيل الدخول</button>
+      </form>
+      <button class="auth-switch" id="authSwitch" type="button">ليس لديك حساب؟ أنشئ حساباً جديداً</button>
+      <p class="auth-message" id="authMessage">بياناتك المالية خاصة بحسابك ولا يراها مستخدم آخر.</p>
+    </div>
+  </section>
+
+  <div class="app-shell">
+    <aside class="sidebar glass">
+      <div class="brand"><div class="brand-mark">M</div><div><b>MY MONEY</b><small>مديرك المالي الشخصي</small></div></div>
+      <div class="profile-mini"><div class="avatar">أ</div><div><b>محفظتي</b><small>مساحة مالية شخصية</small></div></div>
+      <nav class="nav-menu">
+        <button class="nav-link active" data-page="dashboard"><span>▦</span> الرئيسية</button>
+        <button class="nav-link" data-page="transactions"><span>⇄</span> العمليات المالية</button>
+        <button class="nav-link" data-page="budgets"><span>◷</span> الميزانيات</button>
+        <button class="nav-link" data-page="savings"><span>♧</span> المدخرات</button>
+        <button class="nav-link" data-page="debts"><span>⇆</span> الديون</button>
+        <button class="nav-link" data-page="reports"><span>▥</span> التقارير</button>
+        <button class="nav-link" data-page="calendar"><span>▦</span> التقويم المالي</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-link" id="backupBtn"><span>⇩</span> نسخة احتياطية</button>
+        <button class="nav-link" id="settingsBtn"><span>⚙</span> الإعدادات</button>
+        <div class="privacy-note"><span class="pulse"></span><span>بياناتك محفوظة على هذا الجهاز</span></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div><div class="eyebrow" id="todayLabel">مساحتك المالية</div><h1 id="pageTitle">الرئيسية</h1></div>
+        <div class="top-actions">
+          <button class="icon-btn" id="themeToggle" title="تغيير المظهر">☼</button>
+          <button class="icon-btn" id="quickExpense" title="إضافة مصروف">＋</button>
+          <div class="top-avatar">أ</div>
+        </div>
+      </header>
+
+      <section class="page active" id="page-dashboard">
+        <div class="welcome-row">
+          <div><h2>أهلاً بك في <span class="gradient-text">MY MONEY</span></h2><p>تابع أموالك، وخطط لمستقبلك بثقة.</p></div>
+          <button class="primary-btn" id="addTransactionBtn">＋ إضافة عملية</button>
+        </div>
+        <div class="hero-card glass">
+          <div class="hero-top"><span>المتاح من أموالك هذا الشهر</span><span class="status-pill"><i></i> ملخص مباشر</span></div>
+          <div class="balance-line"><strong id="availableBalance">0.00</strong><span>ج.م</span><button class="eye-btn" id="toggleBalance" title="إخفاء/إظهار الرصيد">◉</button></div>
+          <div class="hero-foot">
+            <div><small>إجمالي الدخل</small><b id="totalIncome">0 ج.م</b></div>
+            <div><small>إجمالي المصروفات</small><b id="totalExpenses">0 ج.م</b></div>
+            <div><small>المدخرات</small><b id="totalSavings">0 ج.م</b></div>
+          </div>
+          <div class="hero-orb orb-a"></div><div class="hero-orb orb-b"></div>
+        </div>
+        <div class="stats-grid">
+          <article class="stat-card glass"><div class="stat-head"><span>الراتب الشهري</span><span class="stat-icon mint">↗</span></div><strong id="salaryValue">0 ج.م</strong><small>الراتب الأساسي المسجل</small><button class="text-action" data-open="salaryModal">تعديل الراتب ←</button></article>
+          <article class="stat-card glass"><div class="stat-head"><span>متوسط الصرف اليومي</span><span class="stat-icon blue">⌁</span></div><strong id="dailyAverage">0 ج.م</strong><small>بناءً على مصروفات الشهر</small><span class="muted-mini" id="dailyAllowance">الحد اليومي: 0 ج.م</span></article>
+          <article class="stat-card glass"><div class="stat-head"><span>نسبة إنفاق الراتب</span><span class="stat-icon purple">◔</span></div><strong id="spentPercent">0%</strong><div class="progress-track"><div class="progress-fill" id="spentProgress"></div></div><small>من إجمالي الدخل الشهري</small></article>
+          <article class="stat-card glass"><div class="stat-head"><span>الديون المتبقية</span><span class="stat-icon orange">⇄</span></div><strong id="debtValue">0 ج.م</strong><small>إجمالي الالتزامات المسجلة</small><button class="text-action" data-page="debts">عرض التفاصيل ←</button></article>
+        </div>
+        <div class="content-grid">
+          <article class="panel glass">
+            <div class="section-heading"><div><h3>نظرة على الإنفاق</h3><p>مصروفات آخر 7 أيام</p></div><span class="tag">أسبوعي</span></div>
+            <div class="chart-wrap"><canvas id="weeklyChart"></canvas></div>
+          </article>
+          <article class="panel glass">
+            <div class="section-heading"><div><h3>توزيع المصروفات</h3><p>حسب التصنيف هذا الشهر</p></div><span class="tag">شهري</span></div>
+            <div class="chart-wrap doughnut-wrap"><canvas id="categoryChart"></canvas></div>
+            <div id="categoryLegend" class="category-legend"></div>
+          </article>
+        </div>
+        <article class="panel glass recent-panel">
+          <div class="section-heading"><div><h3>أحدث العمليات</h3><p>آخر ما تم تسجيله في حسابك</p></div><button class="text-action" data-page="transactions">عرض الكل ←</button></div>
+          <div id="recentTransactions" class="transaction-list"></div>
+        </article>
+        <div class="tip-card"><span class="tip-icon">✦</span><div><b>نصيحة مالية</b><p id="smartTip">ابدأ بتسجيل مصروفاتك اليومية لتحصل على صورة أوضح عن أموالك.</p></div></div>
+      </section>
+
+      <section class="page" id="page-transactions">
+        <div class="page-intro"><div><h2>العمليات المالية</h2><p>كل حركة مالية في مكان واحد.</p></div><button class="primary-btn" id="addTransactionBtn2">＋ إضافة عملية</button></div>
+        <div class="toolbar glass"><input id="searchTransactions" placeholder="ابحث باسم العملية أو المبلغ..."><select id="typeFilter"><option value="all">كل العمليات</option><option value="expense">المصروفات</option><option value="income">الدخل</option><option value="saving">تحويل للادخار</option></select><select id="monthFilter"><option value="current">هذا الشهر</option><option value="all">كل الشهور</option></select></div>
+        <div class="panel glass"><div id="allTransactions" class="transaction-list"></div></div>
+      </section>
+
+      <section class="page" id="page-budgets">
+        <div class="page-intro"><div><h2>الميزانيات</h2><p>حدد سقفاً للصرف في كل جانب من حياتك.</p></div><button class="primary-btn" id="addBudgetBtn">＋ ميزانية جديدة</button></div>
+        <div id="budgetList" class="budget-grid"></div>
+      </section>
+
+      <section class="page" id="page-savings">
+        <article class="current-savings-card glass">
+          <div class="current-savings-top"><div><span class="eyebrow">رصيدك الفعلي</span><h2>مدخراتي الحالية</h2><p>هذا هو المبلغ الموجود في صندوق مدخراتك الآن.</p></div><div class="savings-symbol">♧</div></div>
+          <strong id="currentSavingsBalance">0.00 <small>ج.م</small></strong>
+          <div class="savings-totals"><div><small>إجمالي الإيداعات</small><b id="savingsDeposits">0 ج.م</b></div><div><small>إجمالي السحوبات</small><b id="savingsWithdrawals">0 ج.م</b></div></div>
+          <div class="savings-actions"><button class="primary-btn" id="depositSavingsBtn">＋ إيداع مبلغ</button><button class="secondary-btn" id="withdrawSavingsBtn">− سحب مبلغ</button></div>
+        </article>
+        <div class="page-intro"><div><h2>أهداف الادخار</h2><p>خطوات صغيرة تقربك من أهدافك الكبيرة.</p></div><button class="primary-btn" id="addGoalBtn">＋ هدف جديد</button></div>
+        <div id="savingsList" class="goal-grid"></div>
+      </section>
+
+      <section class="page" id="page-debts">
+        <div class="page-intro"><div><h2>إدارة الديون</h2><p>تابع ما لك وما عليك بوضوح.</p></div><button class="primary-btn" id="addDebtBtn">＋ تسجيل دين</button></div>
+        <div class="stats-grid compact-stats"><article class="stat-card glass"><small>عليك للآخرين</small><strong id="owedByMe">0 ج.م</strong></article><article class="stat-card glass"><small>لك عند الآخرين</small><strong id="owedToMe">0 ج.م</strong></article></div>
+        <div id="debtList" class="debt-list"></div>
+      </section>
+
+      <section class="page" id="page-reports">
+        <div class="page-intro"><div><h2>التقارير والتحليلات</h2><p>افهم عاداتك المالية واتخذ قرارات أفضل.</p></div><button class="secondary-btn" id="exportCsvBtn">تصدير CSV ↓</button></div>
+        <div class="stats-grid"><article class="stat-card glass"><small>إجمالي الدخل</small><strong id="reportIncome">0 ج.م</strong></article><article class="stat-card glass"><small>إجمالي المصروفات</small><strong id="reportExpense">0 ج.م</strong></article><article class="stat-card glass"><small>صافي التدفق</small><strong id="reportNet">0 ج.م</strong></article><article class="stat-card glass"><small>أعلى تصنيف إنفاق</small><strong id="topCategory">—</strong></article></div>
+        <div class="panel glass"><div class="section-heading"><div><h3>الدخل مقابل المصروفات</h3><p>آخر 6 أشهر</p></div></div><div class="chart-wrap tall"><canvas id="monthlyChart"></canvas></div></div>
+      </section>
+
+      <section class="page" id="page-calendar">
+        <div class="page-intro"><div><h2>التقويم المالي</h2><p>اختر يوماً لمعرفة حركاتك المالية.</p></div></div>
+        <div class="panel glass"><div class="calendar-head"><button class="icon-btn" id="prevMonth">‹</button><h3 id="calendarMonth"></h3><button class="icon-btn" id="nextMonth">›</button></div><div class="calendar-grid" id="calendarGrid"></div><div id="selectedDayDetails" class="selected-day"></div></div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="mobile-nav">
+    <button class="active" data-page="dashboard"><span>▦</span>الرئيسية</button><button data-page="transactions"><span>⇄</span>العمليات</button><button id="mobileAdd"><span class="plus-circle">＋</span>إضافة</button><button data-page="reports"><span>▥</span>التقارير</button><button data-page="settings"><span>⚙</span>الإعدادات</button>
+  </nav>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal glass" role="dialog" aria-modal="true">
+      <div class="modal-head"><div><span class="eyebrow">MY MONEY</span><h3 id="modalTitle">إضافة عملية مالية</h3></div><button class="icon-btn" id="closeModal">×</button></div>
+      <form id="transactionForm">
+        <input type="hidden" id="editId">
+        <div class="field"><label>نوع العملية</label><div class="segmented" id="transactionTypes"><button type="button" class="selected" data-type="expense">مصروف</button><button type="button" data-type="income">دخل</button><button type="button" data-type="saving">إيداع ادخار</button><button type="button" data-type="saving_withdrawal">سحب ادخار</button></div><input type="hidden" id="transactionType" value="expense"></div>
+        <div class="field"><label for="txAmount">المبلغ (جنيه)</label><input id="txAmount" type="number" min="0.01" step="0.01" placeholder="مثال: 150" required></div>
+        <div class="field"><label for="txTitle">اسم العملية</label><input id="txTitle" maxlength="60" placeholder="مثال: مشتريات السوبر ماركت" required></div>
+        <div class="form-row"><div class="field"><label for="txCategory">التصنيف</label><select id="txCategory"></select></div><div class="field"><label for="txDate">التاريخ</label><input id="txDate" type="date" required></div></div>
+        <div class="field"><label for="txNote">ملاحظات (اختياري)</label><textarea id="txNote" rows="2" placeholder="أضف تفاصيل..."></textarea></div>
+        <button class="primary-btn full-btn" type="submit">حفظ العملية</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="salaryModal">
+    <div class="modal glass small-modal"><div class="modal-head"><div><span class="eyebrow">الدخل الأساسي</span><h3>إعداد الراتب</h3></div><button class="icon-btn close-generic">×</button></div>
+      <form id="salaryForm"><div class="field"><label>الراتب الشهري (جنيه)</label><input id="salaryInput" type="number" min="0" step="0.01" required></div><div class="field"><label>يوم استلام الراتب</label><input id="paydayInput" type="number" min="1" max="31" value="1" required></div><button class="primary-btn full-btn">حفظ الإعدادات</button></form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="budgetModal">
+    <div class="modal glass small-modal"><div class="modal-head"><div><span class="eyebrow">التخطيط</span><h3>ميزانية تصنيف</h3></div><button class="icon-btn close-generic">×</button></div>
+      <form id="budgetForm"><div class="field"><label>التصنيف</label><select id="budgetCategory"></select></div><div class="field"><label>الحد الشهري (جنيه)</label><input id="budgetAmount" type="number" min="1" required></div><button class="primary-btn full-btn">حفظ الميزانية</button></form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="goalModal">
+    <div class="modal glass small-modal"><div class="modal-head"><div><span class="eyebrow">خطتك القادمة</span><h3>هدف ادخار جديد</h3></div><button class="icon-btn close-generic">×</button></div>
+      <form id="goalForm"><div class="field"><label>اسم الهدف</label><input id="goalName" placeholder="شراء لابتوب" required></div><div class="form-row"><div class="field"><label>المبلغ المستهدف</label><input id="goalTarget" type="number" min="1" required></div><div class="field"><label>المبلغ الحالي</label><input id="goalCurrent" type="number" min="0" value="0"></div></div><button class="primary-btn full-btn">إنشاء الهدف</button></form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="debtModal">
+    <div class="modal glass small-modal"><div class="modal-head"><div><span class="eyebrow">التزاماتك</span><h3>تسجيل دين</h3></div><button class="icon-btn close-generic">×</button></div>
+      <form id="debtForm"><div class="field"><label>نوع الدين</label><select id="debtType"><option value="owe">دين عليّ</option><option value="owed">دين لي عند شخص</option></select></div><div class="field"><label>اسم الشخص / الجهة</label><input id="debtPerson" required></div><div class="field"><label>قيمة الدين (جنيه)</label><input id="debtAmount" type="number" min="0.01" required></div><div class="field"><label>موعد السداد (اختياري)</label><input id="debtDue" type="date"></div><button class="primary-btn full-btn">حفظ الدين</button></form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="modal glass small-modal"><div class="modal-head"><div><span class="eyebrow">تفضيلاتك</span><h3>الإعدادات</h3></div><button class="icon-btn close-generic">×</button></div>
+      <div class="settings-list"><div class="account-status" id="accountStatus">الحساب السحابي: جارٍ التحقق...</div><button id="signOutBtn" class="danger-action">تسجيل الخروج <span>↪</span></button><button id="settingsTheme">تبديل الوضع الفاتح / الداكن <span>◐</span></button><button id="exportBackup">تصدير نسخة احتياطية JSON <span>↓</span></button><label class="import-label">استيراد نسخة احتياطية JSON <span>↑</span><input id="importBackup" type="file" accept=".json,application/json"></label><button class="danger-action" id="resetData">حذف جميع البيانات <span>×</span></button></div>
+      <p class="form-hint">يتم حفظ البيانات محليًا داخل متصفح هذا الجهاز. احفظ نسخة احتياطية بانتظام.</p>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
