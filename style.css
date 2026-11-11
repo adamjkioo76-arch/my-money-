@@ -26,3 +26,20 @@ body.light .auth-card{background:rgba(255,255,255,.94)}
 .savings-actions{display:flex;gap:9px;margin-top:17px}.savings-actions button{flex:1}
 .account-status{padding:10px 12px;border:1px solid var(--line);border-radius:11px;color:var(--muted);font-size:11px}
 @media(max-width:760px){.auth-card{padding:23px}.current-savings-card{padding:18px}.current-savings-card>strong{font-size:29px}.savings-totals{gap:22px}}
+
+
+/* MY MONEY 2.0 — premium refinement */
+:root{--panel:rgba(17,27,47,.72);--panel2:rgba(23,36,60,.88);--line:rgba(167,190,225,.13);--shadow:0 24px 80px rgba(0,0,0,.32)}
+body{background-image:radial-gradient(ellipse at 8% 0%,rgba(47,209,164,.16),transparent 35%),radial-gradient(ellipse at 96% 92%,rgba(102,117,255,.17),transparent 36%),linear-gradient(145deg,#070c17,#0b1425 55%,#090e1b)}
+.glass{border-color:rgba(178,202,238,.13);box-shadow:0 18px 55px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.035)}
+.brand-mark{background:linear-gradient(145deg,#a0f4d4,#2ac89a 55%,#168b79);box-shadow:0 9px 30px rgba(38,210,158,.25)}
+.hero-card{background:linear-gradient(115deg,rgba(24,117,91,.58),rgba(18,40,68,.88) 58%,rgba(47,45,91,.76));border:1px solid rgba(122,237,194,.18);box-shadow:0 25px 65px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.09)}
+.primary-btn{background:linear-gradient(115deg,#a0f4d4,#48d9ad 58%,#2bbf9a);box-shadow:0 9px 25px rgba(42,205,158,.2)}
+.primary-btn:focus-visible,.secondary-btn:focus-visible,.icon-btn:focus-visible,.nav-link:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+.auth-card{border:1px solid rgba(163,195,229,.17);box-shadow:0 30px 100px rgba(0,0,0,.4),inset 0 1px rgba(255,255,255,.06)}
+.auth-divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:10px;margin:16px 0 12px}.auth-divider:before,.auth-divider:after{content:'';height:1px;background:var(--line);flex:1}
+.social-auth{display:grid;grid-template-columns:1fr 1fr;gap:10px}.social-btn{border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--text);border-radius:12px;padding:11px;font:700 12px 'Cairo';display:flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;transition:.2s}.social-btn:hover{transform:translateY(-2px);border-color:rgba(112,237,189,.5);background:rgba(255,255,255,.075)}.google-btn b{font:800 17px Arial;color:#4285f4}.facebook-btn b{font:800 19px Arial;color:#4b8df8}.forgot-link{margin-top:7px;text-align:left}
+.setup-modal h3{margin:10px 0 4px;font-size:19px}.setup-modal .brand{padding-bottom:16px}.setup-modal .form-hint{margin-bottom:15px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:11px}.settings-row select{max-width:55%;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);padding:8px;font:11px 'Cairo'}
+.bill-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.bill-card{border-radius:18px;padding:17px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}.bill-main{display:flex;align-items:center;gap:11px;min-width:0}.bill-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:rgba(98,230,177,.1);font-size:19px}.bill-main b{display:block;font-size:12px}.bill-main small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.bill-card>strong{font-size:14px;white-space:nowrap}.bill-actions{grid-column:1/-1;display:flex;gap:8px;align-items:center}.bill-actions .primary-btn{padding:8px 13px;font-size:10px}.bill-actions .tiny-btn{margin-inline-start:auto}
+@media(max-width:760px){.bill-grid{grid-template-columns:1fr}.social-auth{gap:8px}.social-btn{font-size:11px}.mobile-nav{overflow-x:auto;justify-content:space-between}.mobile-nav button{min-width:43px}}
