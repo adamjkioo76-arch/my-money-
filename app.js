@@ -8,8 +8,24 @@ const dateISO = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0'
 const monthKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 const money = n => new Intl.NumberFormat('ar-EG',{maximumFractionDigits:2}).format(Number(n)||0);
 const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const defaultData = {salary:0,payday:1,savingsOpeningBalance:0,currency:'EGP',onboardingCompleted:false,transactions:[],budgets:[],goals:[],debts:[],bills:[],theme:'dark'};
-const CURRENCY_LABELS = {EGP:'ج.م',USD:'$',EUR:'€',SAR:'ر.س',AED:'د.إ',GBP:'£'};
+const defaultData = {
+    salary: 0,
+    payday: 1,
+    savingsOpeningBalance: 0,
+    currency: 'EGP',
+    onboardingCompleted: false,
+
+    // الادخار التلقائي
+    autoSavingsEnabled: true,
+    salaryCycleStart: null,
+
+    transactions: [],
+    budgets: [],
+    goals: [],
+    debts: [],
+    bills: [],
+    theme: 'light'
+};const CURRENCY_LABELS = {EGP:'ج.م',USD:'$',EUR:'€',SAR:'ر.س',AED:'د.إ',GBP:'£'};
 const currencyLabel = () => CURRENCY_LABELS[data.currency] || data.currency || 'ج.م';
 const moneyText = value => `${money(value)} ${currencyLabel()}`;
 function normalizeData(){
